@@ -1,0 +1,29 @@
+{
+  "itemGroup.vampiretheminequerade": "Example Mod Tab",
+  "block.vampiretheminequerade.example_block": "Example Block",
+  "item.vampiretheminequerade.example_item": "Example Item",
+
+  "clan.vampiretheminequerade.clan_toreador": "Toreador",
+  "clan.vampiretheminequerade.clan_ventrue": "Ventrue",
+  "clan.vampiretheminequerade.clan_gangrel": "Gangrel",
+  "clan.vampiretheminequerade.clan_brujah": "Brujah",
+  "clan.vampiretheminequerade.clan_tremere": "Tremere",
+
+  "discipline.vampiretheminequerade.d_celerity": "Celerity",
+  "discipline.vampiretheminequerade.d_auspex": "Auspex",
+  "discipline.vampiretheminequerade.d_presence": "Presence",
+  "discipline.vampiretheminequerade.d_dominate": "Dominate",
+  "discipline.vampiretheminequerade.d_fortitude": "Fortitude",
+  "discipline.vampiretheminequerade.d_protean": "Protean",
+  "discipline.vampiretheminequerade.d_animalism": "Animalism",
+  "discipline.vampiretheminequerade.d_potence": "Potence",
+  "discipline.vampiretheminequerade.d_blood_sorcery": "Blood Sorcery",
+
+  "vampiretheminequerade.configuration.title": "Vampire The Minequerade Configs",
+  "vampiretheminequerade.configuration.section.vampiretheminequerade.common.toml": "Vampire The Minequerade Configs",
+  "vampiretheminequerade.configuration.section.vampiretheminequerade.common.toml.title": "Vampire The Minequerade Configs",
+  "vampiretheminequerade.configuration.items": "Item List",
+  "vampiretheminequerade.configuration.logDirtBlock": "Log Dirt Block",
+  "vampiretheminequerade.configuration.magicNumberIntroduction": "Magic Number Text",
+  "vampiretheminequerade.configuration.magicNumber": "Magic Number"
+}
