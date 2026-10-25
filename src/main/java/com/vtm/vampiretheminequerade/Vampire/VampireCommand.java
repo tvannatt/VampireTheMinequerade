@@ -137,6 +137,7 @@ public class VampireCommand {
 
         Clan clan = Clan.random(target.getRandom());
         target.setData(ModAttachments.VAMPIRE_DATA, VampireData.forClan(clan));
+        BloodHandler.pinFood(target);
         source.sendSuccess(() -> Component.literal("Turned " + target.getName().getString() + " into a vampire (")
                 .append(Component.translatable(clan.id().toLanguageKey("clan")))
                 .append(")"), true);

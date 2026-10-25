@@ -13,22 +13,18 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.food.FoodData;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = VampireTheMinequerade.MODID)
 public class VampireEvents {
-    
+
     private static final int HUNGER_INTERVAL = 1200; // 1 minute
     private static final int SUN_INTERVAL = 5; // 1/4 second
     private static final int SUN_EFFECT_TICKS = 100;
-    private static final int VAMPIRE_FOOD_LEVEL = 17;
+    private static final int FOOD_NAUSEA_TICKS = 200;
     private static final List<Holder<MobEffect>> SUN_EFFECTS = List.of(MobEffects.WITHER, MobEffects.CONFUSION);
 
     /* Handle player tick events for vampirism. */
@@ -37,6 +33,7 @@ public class VampireEvents {
         Player player = event.getEntity();
         if (player.level().isClientSide()) { return; }
 
+        // Determine when we should run hunger and sun checks.
         boolean hungerTick = player.tickCount % HUNGER_INTERVAL == 0;
         boolean sunTick = player.tickCount % SUN_INTERVAL == 0;
         if (!hungerTick && !sunTick) { return; }
@@ -52,14 +49,22 @@ public class VampireEvents {
 
         // Handle sun damage (we're using wither because it's easy.)
         if (sunTick) {
-            // We need to keep player food data in lockstep with blood.
-            // We do this in sunTick since they happen more often. Doing this in hungerTick would stop players from sprinting occasionally.
-            FoodData food = player.getFoodData();
-            food.setFoodLevel(VAMPIRE_FOOD_LEVEL);
-            food.setSaturation(0.0F);
-            food.setExhaustion(0.0F);
+            // Vampires can eat, but it makes them sick. T
+            if (player.tickCount > SUN_INTERVAL && player.getFoodData().getFoodLevel() > BloodHandler.VAMPIRE_FOOD_LEVEL) {
+                player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, FOOD_NAUSEA_TICKS));
+            }
 
-            boolean exposed = isInSunlight(player);
+            // We do this in sunTick since they happen more often. Doing this in hungerTick would stop players from sprinting occasionally.
+            BloodHandler.pinFood(player);
+
+            Level level = player.level();
+            boolean exposed = !player.isCreative()
+                    && !player.isSpectator()
+                    && level.dimensionType().hasSkyLight()
+                    && level.isDay()
+                    && level.canSeeSky(player.blockPosition());
+                    
+            // Add punishiment for being in the sun.
             for (Holder<MobEffect> sunEffect : SUN_EFFECTS) {
                 if (exposed) {
                     if (!player.hasEffect(sunEffect)) {
@@ -73,24 +78,5 @@ public class VampireEvents {
                 }
             }
         }
-    }
-
-    /* Vampires can't eat food. */
-    @SubscribeEvent
-    public static void onLivingEntityUseItemEvent(LivingEntityUseItemEvent.Start event) {
-        LivingEntity player = event.getEntity();
-        if (!(player instanceof ServerPlayer)) { return; }
-        if (player.getExistingData(ModAttachments.VAMPIRE_DATA).isEmpty()) { return; }
-    }
-
-    // Helpers
-
-    private static boolean isInSunlight(Player player) {
-        Level level = player.level();
-        return !player.isCreative()
-                && !player.isSpectator()
-                && level.dimensionType().hasSkyLight()
-                && level.isDay()
-                && level.canSeeSky(player.blockPosition());
     }
 }
