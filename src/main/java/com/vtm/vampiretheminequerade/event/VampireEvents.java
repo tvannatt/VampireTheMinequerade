@@ -49,7 +49,7 @@ public class VampireEvents {
 
         // Handle sun damage (we're using wither because it's easy.)
         if (sunTick) {
-            // Vampires can eat, but it makes them sick. T
+            // Vampires can eat, but it makes them sick. 
             if (player.tickCount > SUN_INTERVAL && player.getFoodData().getFoodLevel() > BloodHandler.VAMPIRE_FOOD_LEVEL) {
                 player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, FOOD_NAUSEA_TICKS));
             }
@@ -63,7 +63,7 @@ public class VampireEvents {
                     && level.dimensionType().hasSkyLight()
                     && level.isDay()
                     && level.canSeeSky(player.blockPosition());
-                    
+
             // Add punishiment for being in the sun.
             for (Holder<MobEffect> sunEffect : SUN_EFFECTS) {
                 if (exposed) {
