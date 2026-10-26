@@ -10,6 +10,7 @@ import static net.minecraft.world.effect.MobEffects.MOVEMENT_SPEED;
 import static net.minecraft.world.effect.MobEffects.WEAKNESS;
 import static net.minecraft.world.effect.MobEffects.WITHER;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,12 +20,17 @@ import com.vtm.vampiretheminequerade.Vampire.VampireData;
 import com.vtm.vampiretheminequerade.Vampire.BloodHandler;
 
 import net.minecraft.core.Holder;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = VampireTheMinequerade.MODID)
@@ -48,6 +54,7 @@ public class VampireEvents {
     // ---------- Blood ----------
 
     private static final int BLOOD_THRESHOLD = 20;
+    private static final int RESPAWN_BLOOD = 50;
 
     // ---------- Effects ----------
 
@@ -55,6 +62,7 @@ public class VampireEvents {
     private static final Map<Holder<MobEffect>, Integer> FRENZY_BUFFS = Map.of(DAMAGE_BOOST, 3, MOVEMENT_SPEED, 1);
     private static final List<Holder<MobEffect>> CRASH_EFFECTS = List.of(WEAKNESS, MOVEMENT_SLOWDOWN, DIG_SLOWDOWN);
     private static final float CRASH_HEALTH = 2.0F; // one heart
+    private static final float FIRE_DAMAGE_MULTIPLIER = 2.0F;
 
     // ============================================================
     // PLAYER TICK
@@ -92,6 +100,7 @@ public class VampireEvents {
             // Frenzy path.
             if (player.tickCount % FRENZY_INTERVAL == 0 && player.getData(FRENZY_COOLDOWN) <= 0 && shouldFrenzy(player, vData.blood())) {
                 player.setData(VAMPIRE_DATA, player.getData(VAMPIRE_DATA).withFrenzyTicks(FRENZY_DURATION_TICKS));
+                player.displayClientMessage(Component.translatable("message.vampiretheminequerade.frenzy").withStyle(ChatFormatting.DARK_RED), true);
             }
         } else {
             MobEffectInstance effect = player.getEffect(WEAKNESS);
@@ -151,6 +160,34 @@ public class VampireEvents {
     }
 
     // ============================================================
+    // RESET FRENZY ON RESPAWN
+    // ============================================================
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.isEndConquered()) { return; }
+
+        Player player = event.getEntity();
+        Optional<VampireData> existingData = player.getExistingData(VAMPIRE_DATA);
+        if (existingData.isEmpty()) { return; }
+
+        player.setData(VAMPIRE_DATA, existingData.get().withBlood(RESPAWN_BLOOD).withFrenzyTicks(0));
+    }
+
+    // ============================================================
+    // FIRE DAMAGE
+    // ============================================================
+
+    @SubscribeEvent
+    public static void onIncomingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player) || !player.hasData(VAMPIRE_DATA)) { return; }
+
+        if (event.getSource().is(DamageTypeTags.IS_FIRE)) {
+            event.setAmount(event.getAmount() * FIRE_DAMAGE_MULTIPLIER);
+        }
+    }
+
+    // ============================================================
     // FRENZY HELPERS
     // ============================================================
 
@@ -165,6 +202,18 @@ public class VampireEvents {
     }
 
     /* Grant consequences to the player for the frenzy. */
+    public static void clearVampireEffects(Player player) {
+        List<Holder<MobEffect>> effects = new ArrayList<>(SUN_EFFECTS);
+        effects.addAll(FRENZY_BUFFS.keySet());
+        effects.addAll(CRASH_EFFECTS);
+        for (Holder<MobEffect> effect : effects) {
+            MobEffectInstance instance = player.getEffect(effect);
+            if (instance != null && instance.isAmbient()) {
+                player.removeEffect(effect);
+            }
+        }
+    }
+
     private static void frenzyCrash(Player player) {
         // Remove the frenzy buffs from the player.
         for (Holder<MobEffect> buff : FRENZY_BUFFS.keySet()) {

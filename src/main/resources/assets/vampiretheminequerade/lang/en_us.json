@@ -16,6 +16,8 @@
   "discipline.vampiretheminequerade.d_potence": "Potence",
   "discipline.vampiretheminequerade.d_blood_sorcery": "Blood Sorcery",
 
+  "message.vampiretheminequerade.frenzy": "The Beast takes over!",
+
   "vampiretheminequerade.configuration.title": "Vampire The Minequerade Configs",
   "vampiretheminequerade.configuration.section.vampiretheminequerade.common.toml": "Vampire The Minequerade Configs",
   "vampiretheminequerade.configuration.section.vampiretheminequerade.common.toml.title": "Vampire The Minequerade Configs",

@@ -10,6 +10,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.vtm.vampiretheminequerade.VampireTheMinequerade;
+import com.vtm.vampiretheminequerade.event.VampireEvents;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -257,6 +258,8 @@ public class VampireCommand {
         if (getVampire(target, source).isEmpty()) { return 0; }
 
         target.removeData(ModAttachments.VAMPIRE_DATA);
+        target.removeData(ModAttachments.FRENZY_COOLDOWN);
+        VampireEvents.clearVampireEffects(target);
         source.sendSuccess(() -> Component.literal("Removed vampirism from " + target.getName().getString()), true);
         return 1;
     }
