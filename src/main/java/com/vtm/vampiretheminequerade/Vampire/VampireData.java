@@ -24,7 +24,7 @@ import net.minecraft.util.Mth;
  * @param bloodPotency  the player's blood potency, from {@link #POTENCY_MIN} to {@link #POTENCY_MAX}
  * @param disciplines   the IDs of the disciplines the player knows
  */
-public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Set<ResourceLocation> disciplines) {
+public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Set<ResourceLocation> disciplines, int frenzyTicks) {
 
     // Defaults for ALL vampires. 
     public static final int BLOOD_MIN = 0;
@@ -36,11 +36,16 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
     public VampireData {
         blood = Mth.clamp(blood, BLOOD_MIN, BLOOD_MAX);
         bloodPotency = Mth.clamp(bloodPotency, POTENCY_MIN, POTENCY_MAX);
+        frenzyTicks = Math.max(frenzyTicks, 0);
+    }
+
+    public boolean isFrenzied() {
+        return frenzyTicks > 0;
     }
 
     /** Factory for a new clan. Clans have a default of 3 disciplines - this handles that.**/
     public static VampireData forClan(Clan clan) {
-        return new VampireData(clan.id(), BLOOD_MAX, POTENCY_MIN, clan.startingDisciplines());
+        return new VampireData(clan.id(), BLOOD_MAX, POTENCY_MIN, clan.startingDisciplines(), 0);
     }
 
     /* The stuff below is all boilerplate. It's telling NeoForge what to do with this record. */
@@ -51,7 +56,8 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
             Codec.INT.fieldOf("blood").forGetter(VampireData::blood),
             Codec.INT.fieldOf("blood_potency").forGetter(VampireData::bloodPotency),
             ResourceLocation.CODEC.listOf().xmap(Set::copyOf, List::copyOf)
-                    .fieldOf("disciplines").forGetter(VampireData::disciplines)
+                    .fieldOf("disciplines").forGetter(VampireData::disciplines),
+            Codec.INT.optionalFieldOf("frenzy_ticks", 0).forGetter(VampireData::frenzyTicks)
     ).apply(i, VampireData::new));
 
     /** Network serialization (server -> client sync). Field order must match the record. */
@@ -62,6 +68,7 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
             ByteBufCodecs.collection(HashSet::new, ResourceLocation.STREAM_CODEC)
                     .map(Set::copyOf, HashSet::new),
             VampireData::disciplines,
+            ByteBufCodecs.VAR_INT, VampireData::frenzyTicks,
             VampireData::new);
     
      /* SETTERS */
@@ -72,26 +79,30 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
       * 
       * **/
      public VampireData withClan(ResourceLocation clan) {
-        return new VampireData(clan, this.blood, this.bloodPotency, this.disciplines);
+        return new VampireData(clan, this.blood, this.bloodPotency, this.disciplines, this.frenzyTicks);
      }
 
      /** Returns a copy with the maximum blood value. **/
      public VampireData withMaxBlood() {
-        return new VampireData(this.clan, BLOOD_MAX, this.bloodPotency, this.disciplines);
+        return new VampireData(this.clan, BLOOD_MAX, this.bloodPotency, this.disciplines, this.frenzyTicks);
      }
      /** Returns a copy with the blood value replaced. **/
      public VampireData withBlood(int blood) {
-        return new VampireData(this.clan, blood, this.bloodPotency, this.disciplines);
+        return new VampireData(this.clan, blood, this.bloodPotency, this.disciplines, this.frenzyTicks);
      }
 
      /** Returns a copy with the blood potency replaced. **/
      public VampireData withBloodPotency(int bloodPotency) {
-        return new VampireData(this.clan, this.blood, bloodPotency, this.disciplines);
+        return new VampireData(this.clan, this.blood, bloodPotency, this.disciplines, this.frenzyTicks);
      }
 
      /** Returns a copy with the discipline set replaced. **/
      public VampireData withDisciplines(Set<ResourceLocation> disciplines) {
-        return new VampireData(this.clan, this.blood, this.bloodPotency, disciplines);
+        return new VampireData(this.clan, this.blood, this.bloodPotency, disciplines, this.frenzyTicks);
+     }
+
+     public VampireData withFrenzyTicks(int frenzyTicks) {
+        return new VampireData(this.clan, this.blood, this.bloodPotency, this.disciplines, frenzyTicks);
      }
 
 
