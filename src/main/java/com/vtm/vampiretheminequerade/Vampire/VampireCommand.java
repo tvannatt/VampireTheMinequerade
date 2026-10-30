@@ -259,6 +259,7 @@ public class VampireCommand {
 
         target.removeData(ModAttachments.VAMPIRE_DATA);
         target.removeData(ModAttachments.FRENZY_COOLDOWN);
+        target.removeData(ModAttachments.FEEDING);
         VampireEvents.clearVampireEffects(target);
         source.sendSuccess(() -> Component.literal("Removed vampirism from " + target.getName().getString()), true);
         return 1;

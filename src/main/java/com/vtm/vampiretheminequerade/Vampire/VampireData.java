@@ -32,7 +32,7 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
     public static final int POTENCY_MIN = 1;
     public static final int POTENCY_MAX = 5;
 
-    /** Clamps blood and blood potency into their valid ranges on every construction (including loading). */
+    /** Clamps blood and blood potency into their valid ranges on every NEW. */
     public VampireData {
         blood = Mth.clamp(blood, BLOOD_MIN, BLOOD_MAX);
         bloodPotency = Mth.clamp(bloodPotency, POTENCY_MIN, POTENCY_MAX);
@@ -50,7 +50,7 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
 
     /* The stuff below is all boilerplate. It's telling NeoForge what to do with this record. */
 
-    /** Disk serialization (saved with the player). **/
+    /** Disk serialization. **/
     public static final Codec<VampireData> CODEC = RecordCodecBuilder.create(i -> i.group(
             ResourceLocation.CODEC.fieldOf("clan").forGetter(VampireData::clan),
             Codec.INT.fieldOf("blood").forGetter(VampireData::blood),
@@ -60,7 +60,7 @@ public record VampireData(ResourceLocation clan, int blood, int bloodPotency, Se
             Codec.INT.optionalFieldOf("frenzy_ticks", 0).forGetter(VampireData::frenzyTicks)
     ).apply(i, VampireData::new));
 
-    /** Network serialization (server -> client sync). Field order must match the record. */
+    /** Network serialization. */
     public static final StreamCodec<RegistryFriendlyByteBuf, VampireData> STREAM_CODEC = StreamCodec.composite(
             ResourceLocation.STREAM_CODEC, VampireData::clan,
             ByteBufCodecs.VAR_INT, VampireData::blood,

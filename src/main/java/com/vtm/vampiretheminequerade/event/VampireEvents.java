@@ -1,5 +1,6 @@
 package com.vtm.vampiretheminequerade.event;
 
+import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.FEEDING;
 import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.FRENZY_COOLDOWN;
 import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.VAMPIRE_DATA;
 import static net.minecraft.world.effect.MobEffects.CONFUSION;
@@ -16,20 +17,31 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.vtm.vampiretheminequerade.VampireTheMinequerade;
+import com.vtm.vampiretheminequerade.Vampire.FeedingState;
 import com.vtm.vampiretheminequerade.Vampire.VampireData;
 import com.vtm.vampiretheminequerade.Vampire.BloodHandler;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -50,6 +62,7 @@ public class VampireEvents {
     private static final int FRENZY_DURATION_TICKS = 600; // 30 seconds
     private static final int CRASH_TICKS = 1200; // 1 minute
     private static final int FRENZY_COOLDOWN_TICKS = 1200; // 1 minute
+    private static final int FEED_PULSE_TICKS = 20; // 1 second
 
     // ---------- Blood ----------
 
@@ -63,6 +76,16 @@ public class VampireEvents {
     private static final List<Holder<MobEffect>> CRASH_EFFECTS = List.of(WEAKNESS, MOVEMENT_SLOWDOWN, DIG_SLOWDOWN);
     private static final float CRASH_HEALTH = 2.0F; // one heart
     private static final float FIRE_DAMAGE_MULTIPLIER = 2.0F;
+
+    // ---------- Feeding ----------
+
+    private static final double FEED_MOVE_TOLERANCE = 0.5; // blocks
+    private static final double FEED_LOOK_COS = 0.75; // ~40 degrees
+    private static final int FEED_LOCK_TICKS = 40; // 2 seconds, refreshed while feeding
+    private static final int FEED_TICKS = 20; // 1 second
+    private static final int FEED_LOCK_AMPLIFIER = 10; // high value to root mobs
+    private static final TagKey<EntityType<?>> BLOODLESS =
+            TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(VampireTheMinequerade.MODID, "bloodless"));
 
     // ============================================================
     // PLAYER TICK
@@ -128,6 +151,29 @@ public class VampireEvents {
             player.setData(FRENZY_COOLDOWN, player.getData(FRENZY_COOLDOWN) - VAMPIRE_TICK_INTERVAL);
         }
 
+        // ---------- Feeding ----------
+
+        FeedingState fState = player.getData(FEEDING);
+        if (fState.isFeeding()) {
+            LivingEntity victim = getVictim(player);
+            if (victim == null || !victim.isAlive()) {
+                // Cancel feed if the victim dies.
+                breakFeeding(player);
+            } else if (player.position().distanceToSqr(fState.startPos()) > FEED_MOVE_TOLERANCE * FEED_MOVE_TOLERANCE) {
+                // Cancel feed if we move.
+                breakFeeding(player);
+            } else {
+                Vec3 lookDir = victim.getBoundingBox().getCenter().subtract(player.getEyePosition()).normalize();
+                double dp = player.getViewVector(1.0F).dot(lookDir);
+                if (dp < FEED_LOOK_COS) {
+                    // Break feeding if the player looks away.
+                    breakFeeding(player);
+                } else {
+                    lockVictim(victim); // Continue feeding.
+                }
+            }
+        }
+
         // ---------- Handle Food ----------
 
         // Vampires can eat, but it makes them sick.
@@ -188,6 +234,67 @@ public class VampireEvents {
     }
 
     // ============================================================
+    // FEEDING
+    // ============================================================
+
+    @SubscribeEvent
+    public static void onAttackEntity(AttackEntityEvent event) {
+        Player player = event.getEntity();
+        Entity target = event.getTarget();
+
+        if (player.level().isClientSide() || !player.hasData(VAMPIRE_DATA)) { return; }
+        if (player.getData(FEEDING).isFeeding()) {
+            // Cancel feeding on a second punch.
+            if (target.getUUID().equals(player.getData(FEEDING).victim())) {
+                event.setCanceled(true);
+                breakFeeding(player);
+            }
+            return;
+        }
+        if (!player.getMainHandItem().isEmpty() || !player.isShiftKeyDown()) { return; }
+
+        // This does allow modded (potentially non-fleshy) mobs to be fed on, but meh. Rule of cool I guess.
+        if (!(target instanceof LivingEntity victim) || target.getType().is(BLOODLESS)) { return; }
+        if (!player.canInteractWithEntity(target, 1D)) { return; }
+
+        event.setCanceled(true);
+        player.setData(FEEDING, new FeedingState(victim.getUUID(), player.position()));
+        lockVictim(victim); // Lock the mob in place on initial feed attempt.
+    }
+
+    @SubscribeEvent
+    public static void onFeederDamaged(LivingDamageEvent.Post event) {
+        if (!(event.getEntity() instanceof Player player) || !player.hasData(VAMPIRE_DATA)) {return;}
+        if (player.getData(FEEDING).isFeeding()) {
+            breakFeeding(player);
+        }
+    }
+
+    /* Keep the feeding victim from moving. */
+    public static void lockVictim(LivingEntity victim) {
+        victim.addEffect(new MobEffectInstance(MOVEMENT_SLOWDOWN, FEED_LOCK_TICKS, FEED_LOCK_AMPLIFIER, true, false, false));
+    }
+
+    /* The player's current feeding victim, if one exists. */
+    private static LivingEntity getVictim(Player player) {
+        FeedingState feeding = player.getData(FEEDING);
+        if (!(player.level() instanceof ServerLevel serverLevel)) { return null; }
+        return serverLevel.getEntity(feeding.victim()) instanceof LivingEntity victim ? victim : null;
+    }
+
+    /* Cancel the feeding process. */
+    private static void breakFeeding(Player player) {
+        LivingEntity victim = getVictim(player);
+        if (victim != null) {
+            MobEffectInstance effect = victim.getEffect(MOVEMENT_SLOWDOWN);
+            if (effect != null && effect.isAmbient()) {
+                victim.removeEffect(MOVEMENT_SLOWDOWN);
+            }
+        }
+        player.setData(FEEDING, FeedingState.NONE);
+    }
+
+    // ============================================================
     // FRENZY HELPERS
     // ============================================================
 
@@ -214,8 +321,8 @@ public class VampireEvents {
         }
     }
 
+    /* Remove frenzy from player + consequences.*/
     private static void frenzyCrash(Player player) {
-        // Remove the frenzy buffs from the player.
         for (Holder<MobEffect> buff : FRENZY_BUFFS.keySet()) {
             MobEffectInstance effect = player.getEffect(buff);
             if (effect != null && effect.isAmbient()) {

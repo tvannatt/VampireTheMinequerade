@@ -12,8 +12,7 @@ import com.vtm.vampiretheminequerade.VampireTheMinequerade;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 
-/** Every clan a vampire can belong to, plus the disciplines each one starts with. 
- * 
+/** Every clan a vampire can belong to, plus the disciplines each one starts with.
  * Current Clans: Toreador, Ventrue, Gangrel, Brujah, Tremere
  * **/
 public enum Clan {

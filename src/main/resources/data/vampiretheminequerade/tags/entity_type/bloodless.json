@@ -1,0 +1,19 @@
+{
+  "values": [
+    "#minecraft:undead",
+    { "id": "#c:bosses", "required": false },
+    "minecraft:armor_stand",
+    "minecraft:iron_golem",
+    "minecraft:snow_golem",
+    "minecraft:blaze",
+    "minecraft:breeze",
+    "minecraft:ghast",
+    "minecraft:shulker",
+    "minecraft:vex",
+    "minecraft:allay",
+    "minecraft:slime",
+    "minecraft:magma_cube",
+    "minecraft:ender_dragon",
+    "minecraft:wither"
+  ]
+}

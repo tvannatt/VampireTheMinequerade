@@ -31,6 +31,10 @@ public class ModAttachments {
             "frenzy_cooldown",
             () -> AttachmentType.builder(() -> 0).build());
 
+    public static final Supplier<AttachmentType<FeedingState>> FEEDING = ATTACHMENT_TYPES.register(
+            "feeding",
+            () -> AttachmentType.builder(() -> FeedingState.NONE).build());
+
     /* Hook our attachments up to the mod event bus. */
     public static void register(IEventBus eventBus) {
         ATTACHMENT_TYPES.register(eventBus);
