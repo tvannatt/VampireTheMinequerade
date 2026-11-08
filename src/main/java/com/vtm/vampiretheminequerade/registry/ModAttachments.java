@@ -42,7 +42,9 @@ public class ModAttachments {
 
     public static final Supplier<AttachmentType<FeedingState>> FEEDING = ATTACHMENT_TYPES.register(
             "feeding",
-            () -> AttachmentType.builder(() -> FeedingState.NONE).build());
+            () -> AttachmentType.builder(() -> FeedingState.NONE)
+                    .sync(FeedingState.STREAM_CODEC)
+                    .build());
 
     public static void register(IEventBus eventBus) {
         ATTACHMENT_TYPES.register(eventBus);

@@ -44,6 +44,7 @@ public class VampireEvents {
     // LOGOUT
     // ============================================================
 
+    @SubscribeEvent
     public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         Player player = event.getEntity();
         Optional<VampireData> existingData = player.getExistingData(VAMPIRE_DATA);
