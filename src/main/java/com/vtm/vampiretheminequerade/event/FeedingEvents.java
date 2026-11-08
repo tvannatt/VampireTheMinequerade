@@ -55,7 +55,6 @@ public class FeedingEvents {
     // FEEDING
     // ============================================================
 
-    /* Start feeding on a punch, or cancel it on a second punch. */
     @SubscribeEvent
     public static void onAttackEntity(AttackEntityEvent event) {
         Player player = event.getEntity();
@@ -75,14 +74,13 @@ public class FeedingEvents {
         // This does allow modded (potentially non-fleshy) mobs to be fed on, but meh. Rule of cool I guess.
         if (!(target instanceof LivingEntity victim) || target.getType().is(BLOODLESS)) { return; }
         if (!player.canInteractWithEntity(target, 1D)) { return; }
-        if (BloodHandler.currentMortalData(victim, player.level().getGameTime()).blood() <= 0) { return; }
+        if (BloodHandler.withRegen(victim, player.level().getGameTime()).blood() <= 0) { return; }
 
         event.setCanceled(true);
         player.setData(FEEDING, new FeedingState(victim.getUUID(), player.position()));
         lockVictim(victim);
     }
 
-    /* Cancel feeding when the feeder takes damage. */
     @SubscribeEvent
     public static void onFeederDamaged(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof Player player) || !player.hasData(VAMPIRE_DATA)) {return;}
@@ -95,7 +93,6 @@ public class FeedingEvents {
     // FEEDING TICK
     // ============================================================
 
-    /* Advance an in-progress feed. */
     static VampireData tickFeeding(Player player, VampireData vData) {
         FeedingState fState = player.getData(FEEDING);
         if (!fState.isFeeding()) { return vData; }
@@ -145,7 +142,6 @@ public class FeedingEvents {
         return vData;
     }
 
-    /* Whether the player has moved away from or looked away from the victim. */
     private static boolean isContactBroken(Player player, FeedingState fState, LivingEntity victim) {
         if (player.position().distanceToSqr(fState.startPos()) > FEED_MOVE_TOLERANCE * FEED_MOVE_TOLERANCE) {
             // Cancel feed if we move.
@@ -157,7 +153,6 @@ public class FeedingEvents {
         return dp < FEED_LOOK_COS;
     }
 
-    /* The direction from the player's eyes to the center of the victim. */
     private static Vec3 getLookDir(Player player, LivingEntity victim) {
         return victim.getBoundingBox().getCenter().subtract(player.getEyePosition()).normalize();
     }
@@ -166,12 +161,10 @@ public class FeedingEvents {
     // FEEDING HELPERS
     // ============================================================
 
-    /* Keep the feeding victim from moving. */
     public static void lockVictim(LivingEntity victim) {
         victim.addEffect(new MobEffectInstance(MOVEMENT_SLOWDOWN, FEED_LOCK_TICKS, FEED_LOCK_AMPLIFIER, true, false, false));
     }
 
-    /* Kill a drained victim. Players are left at 1 health. */
     private static void finishVictim(Player player, LivingEntity victim) {
         if (victim instanceof Player) {
             victim.setHealth(Math.min(victim.getHealth(), 1.0F));
@@ -180,14 +173,12 @@ public class FeedingEvents {
         victim.hurt(player.damageSources().playerAttack(player), Float.MAX_VALUE);
     }
 
-    /* The player's current feeding victim, if one exists. */
     private static LivingEntity getVictim(Player player) {
         FeedingState feeding = player.getData(FEEDING);
         if (!(player.level() instanceof ServerLevel serverLevel)) { return null; }
         return serverLevel.getEntity(feeding.victim()) instanceof LivingEntity victim ? victim : null;
     }
 
-    /* Cancel the feeding process. */
     public static void breakFeeding(Player player) {
         player.getAttribute(Attributes.MOVEMENT_SPEED).removeModifier(FEED_LOCK_ID);
         LivingEntity victim = getVictim(player);

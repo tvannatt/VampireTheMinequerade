@@ -30,7 +30,6 @@ import net.minecraft.network.chat.ComponentUtils;
 @EventBusSubscriber(modid = VampireTheMinequerade.MODID)
 public class VampireCommand {
 
-    /* Command boilerplate for Briagadier. */
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         register(event.getDispatcher());
@@ -108,7 +107,6 @@ public class VampireCommand {
                         .executes(VampireCommand::removeVampirismTarget));
     }
 
-    /** Returns current player vampire data. **/
     private static int info(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         // Player has not been turned yet.
@@ -127,9 +125,6 @@ public class VampireCommand {
         return 1;
     }
 
-    /** Give the player a random vampire clan at the lowest power level.
-     *  If a target is not specified, turn the player instead.
-     * **/
     private static int turn(CommandSourceStack source, ServerPlayer target) {
         // Prevent the command from issuing random data.
         if (target.hasData(ModAttachments.VAMPIRE_DATA)) {
@@ -146,12 +141,10 @@ public class VampireCommand {
         return 1;
     }
 
-    /** Turn the command issuer into a vampire. **/
     private static int turnSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return turn(ctx.getSource(), ctx.getSource().getPlayerOrException());
     }
 
-    /** Turn the specified target into a vampire. **/
     private static int turnTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return turn(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"));
     }
@@ -168,17 +161,14 @@ public class VampireCommand {
         return 1;
     }
 
-    /** Heal the command issuer. **/
     private static int healSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return heal(ctx.getSource(), ctx.getSource().getPlayerOrException());
     }
 
-    /** Heal the specified target. **/
     private static int healTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return heal(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"));
     }
 
-    /** Set the player's blood to the given amount. **/
     private static int setBlood(CommandSourceStack source, ServerPlayer target, int blood) {
         if (blood < VampireData.BLOOD_MIN || blood > VampireData.BLOOD_MAX) {
             source.sendFailure(Component.literal(
@@ -189,19 +179,16 @@ public class VampireCommand {
         return updateVampire(source, target, data -> data.withBlood(blood)) ? 1 : 0;
     }
 
-    /** Set the command issuer's blood to the given amount. **/
     private static int setBloodSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return setBlood(ctx.getSource(), ctx.getSource().getPlayerOrException(),
                 IntegerArgumentType.getInteger(ctx, "blood"));
     }
 
-    /** Set the specified target's blood to the given amount. **/
     private static int setBloodTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return setBlood(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"),
                 IntegerArgumentType.getInteger(ctx, "blood"));
     }
 
-    /** Set the player's blood potency to the given amount. **/
     private static int setBloodPotency(CommandSourceStack source, ServerPlayer target, int bloodPotency) {
         if (bloodPotency < VampireData.POTENCY_MIN || bloodPotency > VampireData.POTENCY_MAX) {
             source.sendFailure(Component.literal(
@@ -212,19 +199,16 @@ public class VampireCommand {
         return updateVampire(source, target, data -> data.withBloodPotency(bloodPotency)) ? 1 : 0;
     }
 
-    /** Set the command issuer's blood potency to the given amount. **/
     private static int setBloodPotencySelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return setBloodPotency(ctx.getSource(), ctx.getSource().getPlayerOrException(),
                 IntegerArgumentType.getInteger(ctx, "bloodpotency"));
     }
 
-    /** Set the specified target's blood potency to the given amount. **/
     private static int setBloodPotencyTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return setBloodPotency(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"),
                 IntegerArgumentType.getInteger(ctx, "bloodpotency"));
     }
 
-    /** Change the player's clan. They lose their old disciplines and get the new clan's starting ones. **/
     private static int changeClan(CommandSourceStack source, ServerPlayer target, String name) {
         Optional<Clan> found = Clan.byName(name);
         if (found.isEmpty()) {
@@ -242,19 +226,16 @@ public class VampireCommand {
         return 1;
     }
 
-    /** Change the command issuer's clan. **/
     private static int changeClanSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return changeClan(ctx.getSource(), ctx.getSource().getPlayerOrException(),
                 StringArgumentType.getString(ctx, "clan"));
     }
 
-    /** Change the specified target's clan. **/
     private static int changeClanTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return changeClan(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"),
                 StringArgumentType.getString(ctx, "clan"));
     }
 
-    /** Remove all vampire data from the player. **/
     private static int removeVampirism(CommandSourceStack source, ServerPlayer target) {
         if (getVampire(target, source).isEmpty()) { return 0; }
 
@@ -267,12 +248,10 @@ public class VampireCommand {
         return 1;
     }
 
-    /** Remove vampirism from the command issuer. **/
     private static int removeVampirismSelf(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return removeVampirism(ctx.getSource(), ctx.getSource().getPlayerOrException());
     }
 
-    /** Remove vampirism from the specified target. **/
     private static int removeVampirismTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         return removeVampirism(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"));
     }

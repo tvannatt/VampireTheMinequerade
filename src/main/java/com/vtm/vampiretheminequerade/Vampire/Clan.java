@@ -27,7 +27,6 @@ public enum Clan {
     private final ResourceLocation id;
     private final Set<ResourceLocation> startingDisciplines;
 
-    /** Makes a clan from its name and the disciplines it starts with. */
     Clan(String path, String... disciplines) {
         this.id = ResourceLocation.fromNamespaceAndPath(VampireTheMinequerade.MODID, path);
         this.startingDisciplines = Arrays.stream(disciplines)
@@ -35,23 +34,19 @@ public enum Clan {
                 .collect(Collectors.toUnmodifiableSet());
     }
 
-    /** The clan's ID, e.g. vampiretheminequerade:clan_one. */
     public ResourceLocation id() {
         return id;
     }
 
-    /** The disciplines a new vampire of this clan starts with. */
     public Set<ResourceLocation> startingDisciplines() {
         return startingDisciplines;
     }
 
-    /** Picks a random clan. Used for new players for now. */
     public static Clan random(RandomSource random) {
         Clan[] all = values();
         return all[random.nextInt(all.length)];
     }
 
-    /** Finds the clan with this ID. */
     public static Optional<Clan> byId(ResourceLocation id) {
         return Arrays.stream(values()).filter(c -> c.id.equals(id)).findFirst();
     }

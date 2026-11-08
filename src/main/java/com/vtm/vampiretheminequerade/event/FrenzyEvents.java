@@ -61,7 +61,6 @@ public class FrenzyEvents {
     // RESET FRENZY ON RESPAWN
     // ============================================================
 
-    /* Reset blood and frenzy when a vampire respawns. */
     @SubscribeEvent
     public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.isEndConquered()) { return; }
@@ -77,7 +76,6 @@ public class FrenzyEvents {
     // FRENZY TICK
     // ============================================================
 
-    /* Low blood: weakness and frenzy roll. */
     static VampireData tickLowBlood(Player player, VampireData vData) {
         if (vData.blood() < BLOOD_THRESHOLD && !vData.isFrenzied()) {
             if (!player.hasEffect(WEAKNESS)) {
@@ -103,7 +101,6 @@ public class FrenzyEvents {
         return vData;
     }
 
-    /* Active frenzy. */
     static VampireData tickFrenzy(Player player, VampireData vData) {
         if (vData.isFrenzied()) {
             int remaining = vData.frenzyTicks() - VAMPIRE_TICK_INTERVAL;
@@ -148,7 +145,6 @@ public class FrenzyEvents {
         return successes < difficulty;
     }
 
-    /* Grant consequences to the player for the frenzy. */
     public static void clearVampireEffects(Player player) {
         List<Holder<MobEffect>> effects = new ArrayList<>(SUN_EFFECTS);
         effects.addAll(FRENZY_BUFFS.keySet());
@@ -161,7 +157,6 @@ public class FrenzyEvents {
         }
     }
 
-    /* Remove frenzy from player + consequences.*/
     private static void frenzyCrash(Player player) {
         for (Holder<MobEffect> buff : FRENZY_BUFFS.keySet()) {
             MobEffectInstance effect = player.getEffect(buff);

@@ -41,7 +41,6 @@ public class VampireEvents {
     // PLAYER TICK
     // ============================================================
 
-    /* Handle player tick events for vampirism. */
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
 
@@ -69,7 +68,6 @@ public class VampireEvents {
 
     // ---------- Blood loss ----------
 
-    /* Drain the player's blood over time. */
     private static VampireData tickBloodLoss(Player player, VampireData vData) {
         if (player.tickCount % HUNGER_INTERVAL == 0) {
             return BloodHandler.chgBlood(vData, -1).orElse(vData);
@@ -79,7 +77,6 @@ public class VampireEvents {
 
     // ---------- Handle Food ----------
 
-    /* Make the player sick for eating and keep their hunger pinned. */
     private static void tickFood(Player player) {
         // Vampires can eat, but it makes them sick.
         if (player.tickCount > VAMPIRE_TICK_INTERVAL && player.getFoodData().getFoodLevel() > BloodHandler.VAMPIRE_FOOD_LEVEL) {
@@ -90,7 +87,6 @@ public class VampireEvents {
 
     // ---------- Sun ----------
 
-    /* Punish the player for standing in the sun. */
     private static void tickSun(Player player) {
         Level level = player.level();
         boolean exposed = !player.isCreative()
@@ -117,7 +113,6 @@ public class VampireEvents {
     // FIRE DAMAGE
     // ============================================================
 
-    /* Make vampires take extra fire damage. */
     @SubscribeEvent
     public static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player) || !player.hasData(VAMPIRE_DATA)) { return; }
