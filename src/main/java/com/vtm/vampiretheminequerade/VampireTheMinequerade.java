@@ -3,7 +3,7 @@ package com.vtm.vampiretheminequerade;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
-import com.vtm.vampiretheminequerade.Vampire.ModAttachments;
+import com.vtm.vampiretheminequerade.registry.ModAttachments;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Blocks;

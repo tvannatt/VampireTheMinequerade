@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.data;
 
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +12,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import com.vtm.vampiretheminequerade.vampire.Clan;
 
 /**
  * Per-player vampire state: clan, blood, and known disciplines.

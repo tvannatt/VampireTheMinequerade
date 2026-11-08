@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.vampire;
 
 import java.util.Arrays;
 import java.util.Locale;

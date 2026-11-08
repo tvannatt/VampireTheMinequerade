@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.data;
 
 import java.util.UUID;
 

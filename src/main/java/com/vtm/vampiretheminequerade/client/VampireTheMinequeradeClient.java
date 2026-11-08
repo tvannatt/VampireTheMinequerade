@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade;
+package com.vtm.vampiretheminequerade.client;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -9,6 +9,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import com.vtm.vampiretheminequerade.VampireTheMinequerade;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = VampireTheMinequerade.MODID, dist = Dist.CLIENT)

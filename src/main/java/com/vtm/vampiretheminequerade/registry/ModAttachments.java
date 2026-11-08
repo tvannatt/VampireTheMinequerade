@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.registry;
 
 import java.util.function.Supplier;
 
@@ -9,6 +9,10 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import com.vtm.vampiretheminequerade.vampire.Clan;
+import com.vtm.vampiretheminequerade.data.VampireData;
+import com.vtm.vampiretheminequerade.data.MortalData;
+import com.vtm.vampiretheminequerade.data.FeedingState;
 
 public class ModAttachments {
 

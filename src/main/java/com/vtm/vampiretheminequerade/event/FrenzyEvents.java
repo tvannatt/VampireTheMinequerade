@@ -1,7 +1,7 @@
 package com.vtm.vampiretheminequerade.event;
 
-import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.FRENZY_COOLDOWN;
-import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.VAMPIRE_DATA;
+import static com.vtm.vampiretheminequerade.registry.ModAttachments.FRENZY_COOLDOWN;
+import static com.vtm.vampiretheminequerade.registry.ModAttachments.VAMPIRE_DATA;
 import static com.vtm.vampiretheminequerade.event.VampireEvents.EFFECT_TICKS;
 import static com.vtm.vampiretheminequerade.event.VampireEvents.SUN_EFFECTS;
 import static com.vtm.vampiretheminequerade.event.VampireEvents.VAMPIRE_TICK_INTERVAL;
@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.vtm.vampiretheminequerade.VampireTheMinequerade;
-import com.vtm.vampiretheminequerade.Vampire.VampireData;
+import com.vtm.vampiretheminequerade.data.VampireData;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;

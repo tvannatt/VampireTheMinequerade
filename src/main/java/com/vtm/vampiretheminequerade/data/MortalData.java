@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

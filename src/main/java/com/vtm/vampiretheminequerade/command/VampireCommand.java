@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.command;
 
 import java.util.Optional;
 import java.util.function.UnaryOperator;
@@ -23,6 +23,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import com.vtm.vampiretheminequerade.vampire.Clan;
+import com.vtm.vampiretheminequerade.vampire.BloodHandler;
+import com.vtm.vampiretheminequerade.data.VampireData;
+import com.vtm.vampiretheminequerade.registry.ModAttachments;
 
 
 // TODO: The info debug command should be replaced with a GUI that tells you your stats.

@@ -1,6 +1,6 @@
 package com.vtm.vampiretheminequerade.event;
 
-import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.VAMPIRE_DATA;
+import static com.vtm.vampiretheminequerade.registry.ModAttachments.VAMPIRE_DATA;
 import static net.minecraft.world.effect.MobEffects.CONFUSION;
 import static net.minecraft.world.effect.MobEffects.WITHER;
 
@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.vtm.vampiretheminequerade.VampireTheMinequerade;
-import com.vtm.vampiretheminequerade.Vampire.VampireData;
-import com.vtm.vampiretheminequerade.Vampire.BloodHandler;
+import com.vtm.vampiretheminequerade.data.VampireData;
+import com.vtm.vampiretheminequerade.vampire.BloodHandler;
 
 import net.minecraft.core.Holder;
 import net.minecraft.tags.DamageTypeTags;

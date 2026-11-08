@@ -1,4 +1,4 @@
-package com.vtm.vampiretheminequerade.Vampire;
+package com.vtm.vampiretheminequerade.vampire;
 
 import java.util.Optional;
 
@@ -6,6 +6,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
+import com.vtm.vampiretheminequerade.data.VampireData;
+import com.vtm.vampiretheminequerade.data.MortalData;
+import com.vtm.vampiretheminequerade.registry.ModAttachments;
 
 public class BloodHandler {
 

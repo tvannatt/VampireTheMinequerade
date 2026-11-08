@@ -1,15 +1,15 @@
 package com.vtm.vampiretheminequerade.event;
 
-import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.FEEDING;
-import static com.vtm.vampiretheminequerade.Vampire.ModAttachments.VAMPIRE_DATA;
+import static com.vtm.vampiretheminequerade.registry.ModAttachments.FEEDING;
+import static com.vtm.vampiretheminequerade.registry.ModAttachments.VAMPIRE_DATA;
 import static net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN;
 
 import java.util.Set;
 
 import com.vtm.vampiretheminequerade.VampireTheMinequerade;
-import com.vtm.vampiretheminequerade.Vampire.BloodHandler;
-import com.vtm.vampiretheminequerade.Vampire.FeedingState;
-import com.vtm.vampiretheminequerade.Vampire.VampireData;
+import com.vtm.vampiretheminequerade.vampire.BloodHandler;
+import com.vtm.vampiretheminequerade.data.FeedingState;
+import com.vtm.vampiretheminequerade.data.VampireData;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
