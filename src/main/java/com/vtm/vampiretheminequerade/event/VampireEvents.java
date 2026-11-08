@@ -1,5 +1,6 @@
 package com.vtm.vampiretheminequerade.event;
 
+import static com.vtm.vampiretheminequerade.registry.ModAttachments.FEEDING;
 import static com.vtm.vampiretheminequerade.registry.ModAttachments.VAMPIRE_DATA;
 import static net.minecraft.world.effect.MobEffects.CONFUSION;
 import static net.minecraft.world.effect.MobEffects.WITHER;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.vtm.vampiretheminequerade.VampireTheMinequerade;
+import com.vtm.vampiretheminequerade.data.FeedingState;
 import com.vtm.vampiretheminequerade.data.VampireData;
 import com.vtm.vampiretheminequerade.vampire.BloodHandler;
 
@@ -20,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @EventBusSubscriber(modid = VampireTheMinequerade.MODID)
@@ -33,9 +36,38 @@ public class VampireEvents {
     static final int VAMPIRE_TICK_INTERVAL = 5; // 1/4 second
     private static final int HUNGER_INTERVAL = VAMPIRE_TICK_INTERVAL * 240; // 1 minute
     static final int EFFECT_TICKS = 200; // 10 seconds
-
+    private static final int RESPAWN_BLOOD = 50;
     static final List<Holder<MobEffect>> SUN_EFFECTS = List.of(WITHER, CONFUSION);
     private static final float FIRE_DAMAGE_MULTIPLIER = 2.0F;
+
+    // ============================================================
+    // LOGOUT
+    // ============================================================
+
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+        Optional<VampireData> existingData = player.getExistingData(VAMPIRE_DATA);
+
+        if (existingData.isEmpty()) { return; }
+        FeedingEvents.breakFeeding(player);
+    }
+
+
+    // ============================================================
+    // RESPAWN
+    // ============================================================
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.isEndConquered()) { return; }
+
+        Player player = event.getEntity();
+        Optional<VampireData> existingData = player.getExistingData(VAMPIRE_DATA);
+        if (existingData.isEmpty()) { return; }
+
+        FeedingEvents.breakFeeding(player);
+        player.setData(VAMPIRE_DATA, existingData.get().withBlood(RESPAWN_BLOOD).withFrenzyTicks(0));
+    }
 
     // ============================================================
     // PLAYER TICK

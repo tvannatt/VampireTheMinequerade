@@ -46,7 +46,6 @@ public class FrenzyEvents {
     private static final int CRASH_TICKS = 1200; // 1 minute
     private static final int FRENZY_COOLDOWN_TICKS = 1200; // 1 minute
     private static final int BLOOD_THRESHOLD = 20;
-    private static final int RESPAWN_BLOOD = 50;
     private static final Map<Holder<MobEffect>, Integer> FRENZY_BUFFS = Map.of(DAMAGE_BOOST, 3, MOVEMENT_SPEED, 1);
     private static final List<Holder<MobEffect>> CRASH_EFFECTS = List.of(WEAKNESS, MOVEMENT_SLOWDOWN, DIG_SLOWDOWN);
     private static final float CRASH_HEALTH = 2.0F; // one heart
@@ -56,21 +55,6 @@ public class FrenzyEvents {
     private static final int HEARTBEAT_SLOW_TICKS = 20; // 1 second
     private static final int HEARTBEAT_MEDIUM_TICKS = 15;
     private static final int HEARTBEAT_FAST_TICKS = 10;
-
-    // ============================================================
-    // RESET FRENZY ON RESPAWN
-    // ============================================================
-
-    @SubscribeEvent
-    public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
-        if (event.isEndConquered()) { return; }
-
-        Player player = event.getEntity();
-        Optional<VampireData> existingData = player.getExistingData(VAMPIRE_DATA);
-        if (existingData.isEmpty()) { return; }
-
-        player.setData(VAMPIRE_DATA, existingData.get().withBlood(RESPAWN_BLOOD).withFrenzyTicks(0));
-    }
 
     // ============================================================
     // FRENZY TICK
