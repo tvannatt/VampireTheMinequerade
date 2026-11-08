@@ -38,5 +38,6 @@ run/
 **/src/generated/**/.cache/
 repo/
 !**/src/**/repo/
+.mcp.json
 
 .fake

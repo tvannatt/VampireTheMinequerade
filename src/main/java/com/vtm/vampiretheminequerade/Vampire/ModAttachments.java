@@ -26,6 +26,14 @@ public class ModAttachments {
                     .copyOnDeath()
                     .build());
 
+    /* Entity blood pool state. */
+    public static final Supplier<AttachmentType<MortalData>> MORTAL_DATA = ATTACHMENT_TYPES.register(
+      "mortal_data",
+            () -> AttachmentType.builder(() -> new MortalData(MortalData.BLOOD_MAX, 0L))
+                    .serialize(MortalData.CODEC)
+                    .sync(MortalData.STREAM_CODEC)
+                    .build());
+
     /* Ticks left before a player can frenzy again. */
     public static final Supplier<AttachmentType<Integer>> FRENZY_COOLDOWN = ATTACHMENT_TYPES.register(
             "frenzy_cooldown",
